@@ -1,25 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import { useRef, useEffect, useState } from "react";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const Controller = (props) => {
+
+  const [path, setPath] = useState(window.location.pathname);
+  useEffect(() => {
+    window.addEventListener('popstate', (e) => {
+    setPath(e.target.location.pathname);
+    window.removeEventListener('popstate', () => {});
+   });
+  }, [path]);
+  const matchUrl = (child) => { if (child.props.url === path) return child };
+  let r = props.children.filter(matchUrl)[0];
+  console.log(r);
+  console.log(path);
+  return r.props.renderElement;
 }
 
-export default App;
+const A = (props) => {
+    const lina = useRef('');
+    const process = (e) => {
+        e.stopPropagation(); e.preventDefault();
+        window.history.pushState(null, '', lina.current.href);
+        window.dispatchEvent(new Event('popstate'));
+    }
+    return <>
+    <a ref={lina} {...props} onClick={(e) => process(e)}>{props.children}</a>
+    </>
+}
+
+export {A, Controller};
